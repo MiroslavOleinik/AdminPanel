@@ -5,6 +5,7 @@ import { BrowserRouter, Route } from 'react-router-dom';
 import LoginPage from './LoginPage';
 import AdminPage from './AdminPage';
 import Create from './Create';
+import Edit from './Edit';
 import './App.css';
 
 const mapStateToProps = ({ loginStatus }) => ({
@@ -29,6 +30,7 @@ class App extends Component {
       <BrowserRouter>
         <Route exact path='/' component={AdminPage}/>
         <Route path='/create' component={Create}/>
+        <Route path='/edit' component={Edit}/>
       </BrowserRouter>
     );
   }

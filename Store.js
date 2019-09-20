@@ -1,12 +1,13 @@
 const initialState = {
   loginStatus: true,
+  roles: ['user', 'admin', 'moderator',],
   currentUser: {
     id: 0,
     login: 'admin',
     password: 'password',
     role: 'admin',
     email: 'ollmirik@gmail.com',
-    deleted: false,
+    deactivated: false,
   },
   users: [{
     id: 0,
@@ -14,15 +15,22 @@ const initialState = {
     password: 'password',
     role: 'admin',
     email: 'ollmirik@gmail.com',
-    deleted: false,
+    deactivated: false,
   },{
     id: 1,
     login: 'user',
     password: 'password',
     role: 'user',
     email: 'ollmirik@gmail.com',
-    deleted: false,
-  },]
+    deactivated: false,
+  },{
+    id: 2,
+    login: 'moderator',
+    password: 'password',
+    role: 'moderator',
+    email: 'ollmirik@gmail.com',
+    deactivated: false,
+  }],
 }
 
 export function logIn(value, login) {
@@ -33,10 +41,13 @@ export function logIn(value, login) {
   };
 }
 
-export function deleteUser(value) {
+export function logOut() {
   return {
-    type: 'DELETE_USER',
-    payload: value,
+    type: 'LOG_OUT',
+    payload: {
+      loginStatus: false,
+      currentUser: {},
+    }
   };
 }
 
@@ -47,13 +58,27 @@ export function addUser(value) {
   };
 }
 
-export function logOut() {
+export function editUser(value, id) {
   return {
-    type: 'LOG_OUT',
+    type: 'EDIT_USER',
     payload: {
-      loginStatus: false,
-      currentUser: {},
-    }
+      newData: value,
+      userId: id,
+    },
+  };
+}
+
+export function activateUser(value) {
+  return {
+    type: 'ACTIVATE_USER',
+    payload: value,
+  };
+}
+
+export function deactivateUser(value) {
+  return {
+    type: 'DEACTIVATE_USER',
+    payload: value,
   };
 }
 
@@ -74,11 +99,23 @@ export function adminPanel(state = initialState, action) {
         currentUser: currentUser,
         loginStatus: payload,
       };
-    case 'DELETE_USER':
+    case 'DEACTIVATE_USER':
       users.forEach((element) => {
         if (element.id === payload) {
-          element.deleted = true;
+          element.deactivated = true;
         }
+        console.log(element)
+      });
+      return {
+        ...state,
+        users: users,
+      };
+    case 'ACTIVATE_USER':
+      users.forEach((element) => {
+        if (element.id === payload) {
+          element.deactivated = false;
+        }
+        console.log(element)
       });
       return {
         ...state,
@@ -95,6 +132,18 @@ export function adminPanel(state = initialState, action) {
         loginStatus: payload.loginStatus,
         currentUser: payload.currentUser,
       };
+    case 'EDIT_USER':
+      const updatedUsers = users.map((element) => {
+        if(payload.userId === element.id) {
+          return payload.newData;
+        } else {
+          return element;
+        }
+      });
+      return {
+        ...state,
+        users: [ ...updatedUsers ],
+      }
     default:
       return state;
   }

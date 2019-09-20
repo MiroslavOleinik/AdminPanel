@@ -25,8 +25,8 @@ class LoginPage extends Component {
     const { users, logInDispatch } = this.props;
     const inputLogin = document.getElementById('login').value;
     const inputPassword = document.getElementById('password').value;
-    users.forEach(({ login, password, deleted }) => {
-      if (deleted === false) {
+    users.forEach(({ login, password, deactivated }) => {
+      if (deactivated === false) {
         if (inputPassword === password) {
           if(inputLogin === login) {
             logInDispatch(true, inputLogin);

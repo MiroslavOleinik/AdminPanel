@@ -1,15 +1,19 @@
 import React, { Component, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { deleteUser, logOut } from './Store';
+import { deactivateUser, activateUser, logOut } from './Store';
+
 const mapStateToProps = ({ users, currentUser }) => ({
   currentUser: currentUser,
   users: users,
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  deleteUserDispatch: (value) => {
-    dispatch(deleteUser(value))
+  deactivateUserDispatch: (value) => {
+    dispatch(deactivateUser(value))
+  },
+  activateUserDispatch: (value) => {
+    dispatch(activateUser(value))
   },
   logOutDispatch: () => {
     dispatch(logOut())
@@ -17,9 +21,13 @@ const mapDispatchToProps = (dispatch) => ({
 });
 
 class AdminPage extends Component {
-  deleteFlagOn(id) {
-    console.log(id);
-    this.props.deleteUserDispatch(id);
+  setActivityFlag(element) {
+    const { activateUserDispatch, deactivateUserDispatch } = this.props;
+    if(element.deactivated === true) {
+      activateUserDispatch(element.id);
+    } else {
+      deactivateUserDispatch(element.id);
+    }
     this.setState();
   }
 
@@ -32,8 +40,9 @@ class AdminPage extends Component {
     const { currentUser, users } = this.props;
     return (
       <Fragment>
-      <button onClick={()=>{this.logOut()}}>Log Out</button>
-        <table>
+        <h2>Admin panel</h2>
+        <button className="button logout" onClick={()=>{this.logOut()}}>Log Out</button>
+        <table className="table">
           <thead>
             <tr>
               <td>Id</td>
@@ -46,26 +55,31 @@ class AdminPage extends Component {
             </tr>
           </thead>
           <tbody>
-            {users.map(({ id, login, password, email, role, deleted }) => {
-              if (!deleted) {
-                return (
-                  <tr key={`${login}${id}`}>
-                    <td>{id}</td>
-                    <td>{login}</td>
-                    <td>{password}</td>
-                    <td>{email}</td>
-                    <td>{role}</td>
-                    <td>
-                    </td>
-                    <td>{id === currentUser.id ? (<span>Current user</span>) : (<button onClick={() => {this.deleteFlagOn(id)}}>Delete</button>)}</td>
-                  </tr>)
-              } else {
-                return null
-              }
+            {users.map((element) => {
+              return (
+                <tr key={`${element.login}${element.id}`}>
+                  <td>{element.id}</td>
+                  <td>{element.login}</td>
+                  <td>{element.password}</td>
+                  <td>{element.email}</td>
+                  <td>{element.role}</td>
+                  <td><Link
+                    className="link"
+                    element={element}
+                    to={`/edit/${element.id}`}>
+                    Edit</Link>
+                  </td>
+                  <td>{element.id === currentUser.id ?
+                    (<span>Current user</span>) :
+                    (<button onClick={() => {this.setActivityFlag(element)}}>
+                      {element.deactivated ? 'Activate' : 'Deactivated'}
+                    </button>)}
+                  </td>
+                </tr>)
             })}
           </tbody>
         </table>
-        <Link to="create">Create New</Link>
+        <Link className="link" to="create">Create New User</Link>
       </Fragment>
     )
   }
